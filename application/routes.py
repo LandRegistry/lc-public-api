@@ -81,10 +81,14 @@ def register():
     json_data = request.get_json(force=True)
     try:
         validate(json_data, full_schema)
-        # TODO: if residence_withheld is true, and residence is not supplied, throw a ValidationError
     except ValidationError as error:
         message = "{}\n{}".format(error.message, error.path)
 
+        return Response(message, status=400)
+
+    if json_data['residence_withheld'] == False and not json_data['residence']:
+        print("we have no address")
+        message = "No residence included for the debtor. Residence required unless withheld."
         return Response(message, status=400)
 
     url = 'http://10.0.2.2:5002/register'
