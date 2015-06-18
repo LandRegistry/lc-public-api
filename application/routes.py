@@ -87,7 +87,7 @@ def register():
 
         return Response(message, status=400)
 
-    url = 'http://10.0.2.2:5002/register'
+    url = app.config['B2B_PROCESSOR_URL'] + '/register'
 
     headers = {'Content-Type': 'application/json'}
 
