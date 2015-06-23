@@ -49,9 +49,9 @@ full_schema = {
             "type": "array",
             "items": name_schema
         },
-        "gender":  {"type": "string"},
-        "occupation":  {"type": "string"},
-        "trading_name":  {"type": "string"},
+        "gender": {"type": "string"},
+        "occupation": {"type": "string"},
+        "trading_name": {"type": "string"},
         "residence": {
             "type": "array",
             "items": address_schema
@@ -83,29 +83,21 @@ def register():
         validate(json_data, full_schema)
     except ValidationError as error:
         message = "{}\n{}".format(error.message, error.path)
-
         return Response(message, status=400)
 
-    if json_data['residence_withheld'] == False and not json_data['residence']:
-        print("we have no address")
+    if json_data['residence_withheld'] is False and not json_data['residence']:
         message = "No residence included for the debtor. Residence required unless withheld."
         return Response(message, status=400)
 
     url = 'http://10.0.2.2:5002/register'
-
     headers = {'Content-Type': 'application/json'}
-
     response = requests.post(url, data=json.dumps(json_data), headers=headers)
 
     if response.status_code == 200:
         data = {
             "message": "Register complete"
         }
-        return Response(json.dumps(data), status=200, mimetype='application/json')
+        return Response(json.dumps(data), status=202, mimetype='application/json')
     else:
-        logging.error("Received " + response.status_code)
+        logging.error("Received " + str(response.status_code))
         return Response(response.status_code)
-
-
-
-
