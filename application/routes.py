@@ -89,7 +89,7 @@ def register():
         message = "No residence included for the debtor. Residence required unless withheld."
         return Response(message, status=400)
 
-    url = 'http://10.0.2.2:5002/register'
+    url = app.config['B2B_PROCESSOR_URL'] + '/register'
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, data=json.dumps(json_data), headers=headers)
 
