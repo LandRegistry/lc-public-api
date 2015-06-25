@@ -1,3 +1,4 @@
+import pytest
 from unittest import mock
 from application.routes import app
 import requests
@@ -16,11 +17,8 @@ my_reg_data = test_data.addr_withheld
 
 
 class TestB2BApi:
-    def __init__(self):
+    def setup_method(self, method):
         self.app = app.test_client()
-
-    def setup_method(self):
-        pass
 
     def test_health_check(self):
         response = self.app.get("/")
@@ -32,9 +30,8 @@ class TestB2BApi:
 
     # test for successful registration where debtor has 1 residence
     fake_success = FakeResponse('stuff', 200)
-
     @mock.patch('requests.post', return_value=fake_success)
-    def test_register(self):
+    def test_register(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.residence_1, headers=headers)
         assert response.status_code == 202
@@ -44,7 +41,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_witheld_flag(self):
+    def test_witheld_flag(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.addr_withheld, headers=headers)
         assert response.status_code == 202
@@ -54,7 +51,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_witheld_flag_fail(self):
+    def test_witheld_flag_fail(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.withheld_flag_fail, headers=headers)
         assert response.status_code == 400
@@ -64,7 +61,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_residence_3(self):
+    def test_residence_3(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.residence_3_pass, headers=headers)
         assert response.status_code == 202
@@ -74,7 +71,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_residence_3_fail(self):
+    def test_residence_3_fail(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.residence_3_fail, headers=headers)
         assert response.status_code == 400
@@ -83,7 +80,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_no_key_no(self):
+    def test_no_key_no(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.no_key_no, headers=headers)
         assert response.status_code == 400
@@ -92,7 +89,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_no_ref(self):
+    def test_no_ref(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.no_ref, headers=headers)
         assert response.status_code == 400
@@ -101,7 +98,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_no_date(self):
+    def test_no_date(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.no_date, headers=headers)
         assert response.status_code == 400
@@ -110,7 +107,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_no_debtor(self):
+    def test_no_debtor(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.no_debtor_name, headers=headers)
         assert response.status_code == 400
@@ -119,7 +116,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_forename(self):
+    def test_forename(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.no_forename, headers=headers)
         assert response.status_code == 400
@@ -128,7 +125,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_no_surname(self):
+    def test_no_surname(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.no_surname, headers=headers)
         assert response.status_code == 400
@@ -137,7 +134,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_withheld_flag(self):
+    def test_withheld_flag(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.no_withheld_flag, headers=headers)
         assert response.status_code == 400
@@ -146,7 +143,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_forename_2_altname(self):
+    def test_forename_2_altname(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.forename_2_alt_name, headers=headers)
         assert response.status_code == 202
@@ -156,7 +153,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_forename4(self):
+    def test_forename4(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.forename_4, headers=headers)
         assert response.status_code == 202
@@ -166,7 +163,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_no_gender(self):
+    def test_no_gender(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.no_gender, headers=headers)
         assert response.status_code == 202
@@ -176,7 +173,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_no_occupation(self):
+    def test_no_occupation(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.no_occupation, headers=headers)
         assert response.status_code == 202
@@ -186,7 +183,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_no_trade_name(self):
+    def test_no_trade_name(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.no_trading_name, headers=headers)
         assert response.status_code == 202
@@ -196,7 +193,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_all_fields(self):
+    def test_all_fields(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.all_fields, headers=headers)
         assert response.status_code == 202
@@ -206,7 +203,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_schema_fail(self):
+    def test_schema_fail(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         reg_error = '{"keynumber": 222222,"ref": "myref","date": "16/06/2015","forename": "John","surname": "Watson"}'
         response = self.app.post('/register', data=reg_error, headers=headers)
@@ -216,7 +213,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 400)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_register_fail(self):
+    def test_register_fail(self, mock_post):
         headers = {'Content-Type': 'application/json'}
         response = self.app.post('/register', data=test_data.residence_1, headers=headers)
         assert response.status_code != 202
@@ -225,7 +222,7 @@ class TestB2BApi:
     fake_success = FakeResponse('stuff', 200)
 
     @mock.patch('requests.post', return_value=fake_success)
-    def test_content_fail(self):
+    def test_content_fail(self, mock_post):
         headers = {'Content-Type': 'text'}
         response = self.app.post('/register', data=test_data.residence_1, headers=headers)
         assert response.status_code == 415
