@@ -1,0 +1,47 @@
+{
+  "key_number": "7659646",
+  "application_type": "PA(B)",
+  "application_ref": "6378934",
+  "date": "2015-04-10",
+  "debtor_name": {
+    "forenames": [
+      "Nettie",
+      "Brionna"
+    ],
+    "surname": "Witting"
+  },
+  "debtor_alternative_name": [],
+  "gender": "N/A",
+  "occupation": "Pharmacist",
+  "trading_name": "Technodax",
+  "residence": [
+    {
+      "address_lines": [
+        "57450 Delbert Pine",
+        "Port Ryleigh",
+        "West Sussex"
+      ],
+      "postcode": "FJ60 4KL"
+    },{
+      "address_lines": [
+        "8135 Crist Club",
+        "East Namemouth",
+        "Grampian"
+      ]
+    },{
+      "address_lines": [
+        "64165 Stanley Springs",
+        "North Brandiside",
+        "North Jamaaltown",
+        "Hampshire"
+      ],
+      "postcode": "WK63 5UW"
+    }
+  ],
+  "residence_withheld": false,
+  "date_of_birth": "1975-02-10",
+  "investment_property": []
+}
+
+
+

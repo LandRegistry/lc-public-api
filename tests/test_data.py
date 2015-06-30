@@ -1,26 +1,38 @@
-#debtor has residence withheld
-addr_withheld = '{"key_number": "2244098",' \
- '"application_ref": "12345678",' \
- '"date": "2015-06-16",' \
- '"debtor_name": {' \
-     '"forenames": ["Roxane", "Sonia"],' \
-     '"surname": "Stracke"' \
- '},' \
- '"debtor_alternative_name": [{' \
-                                 '"forenames": ["Roxane"],' \
-                                 '"surname": "Bode"' \
-                             '}' \
- '],' \
- '"gender": "Not supplied",' \
- '"occupation": "Distributed Goat Engineer",' \
- '"trading_name": "Rox. Stracke",' \
- '"residence": [],' \
- '"residence_withheld": true,' \
- '"date_of_birth": "1981-03-12",' \
- '"investment_property": []' \
-'}'
+import os
 
-#debtor has one residence and postcode
+#open('filename.txt', 'r').read()
+#dir = os.path.dirname(__file__)
+#filename = os.path.join(dir, '/relative/path/to/file/you/want')
+
+dir = os.path.dirname(__file__)
+
+addr_withheld = open(os.path.join(dir, 'data/address_withheld.json'), 'r')
+
+
+
+#debtor has residence withheld    address_withheld
+# addr_withheld = '{"key_number": "2244098",' \
+#  '"application_ref": "12345678",' \
+#  '"date": "2015-06-16",' \
+#  '"debtor_name": {' \
+#      '"forenames": ["Roxane", "Sonia"],' \
+#      '"surname": "Stracke"' \
+#  '},' \
+#  '"debtor_alternative_name": [{' \
+#                                  '"forenames": ["Roxane"],' \
+#                                  '"surname": "Bode"' \
+#                              '}' \
+#  '],' \
+#  '"gender": "Not supplied",' \
+#  '"occupation": "Distributed Goat Engineer",' \
+#  '"trading_name": "Rox. Stracke",' \
+#  '"residence": [],' \
+#  '"residence_withheld": true,' \
+#  '"date_of_birth": "1981-03-12",' \
+#  '"investment_property": []' \
+# '}'
+
+#debtor has one residence and postcode    one_residence
 residence_1 = '{ ' \
     '"key_number": "2244098",' \
     '"application_ref": "12345678",' \
@@ -46,7 +58,7 @@ residence_1 = '{ ' \
     '"investment_property": []' \
 '}'
 
-#residence_withheld flag false but no address supplied
+#residence_withheld flag false but no address supplied    residence_withheld_false_no_address
 withheld_flag_fail = '{ ' \
               '"key_number": "2244098",' \
               '"application_ref": "12345678",' \
@@ -65,7 +77,7 @@ withheld_flag_fail = '{ ' \
               '"investment_property": []' \
               '}'
 
-#debtor has 3 residences with 3 postcodes
+#debtor has 3 residences with 3 postcodes      three_residences
 residence_3_pass = '{ ' \
               '"key_number": "2244098",' \
               '"application_ref": "12345678",' \
@@ -105,7 +117,7 @@ residence_3_pass = '{ ' \
               '"investment_property": []' \
               '}'
 
-#debtor has 3 residence but only 2 postcodes
+#debtor has 3 residence but only 2 postcodes  three_residences_one_missing_postcode
 residence_3_fail = '{ ' \
                    '"key_number": "2244098",' \
                    '"application_ref": "12345678",' \
@@ -144,7 +156,7 @@ residence_3_fail = '{ ' \
                    '"investment_property": []' \
                    '}'
 
-#No key number supplied
+#No key number supplied     no_key_number
 no_key_no = '{ ' \
               '"application_ref": "12345678",' \
               '"date": "2015-06-16",' \
@@ -169,7 +181,7 @@ no_key_no = '{ ' \
               '"investment_property": []' \
               '}'
 
-#no reference supplied
+#no reference supplied   no_reference
 no_ref = '{ ' \
               '"key_number": "2244098",' \
               '"application_ref": ,' \
@@ -219,7 +231,7 @@ no_date = '{ ' \
               '"investment_property": []' \
               '}'
 
-#no debtor name supplied
+#no debtor name supplied  no_debtor_name
 no_debtor_name = '{ ' \
               '"key_number": "2244098",' \
               '"application_ref": "12345678",' \
@@ -241,7 +253,7 @@ no_debtor_name = '{ ' \
               '"investment_property": []' \
               '}'
 
-#no debtor forename supplied
+#no debtor forename supplied    #no_debtor_forename
 no_forename = '{ ' \
               '"key_number": "2244098",' \
               '"application_ref": "12345678",' \
@@ -266,7 +278,7 @@ no_forename = '{ ' \
               '"investment_property": []' \
               '}'
 
-#no debtor surname supplied
+#no debtor surname supplied   # no_debtor_surname
 no_surname = '{ ' \
               '"key_number": "2244098",' \
               '"application_ref": "12345678",' \
@@ -316,7 +328,7 @@ no_withheld_flag = '{ ' \
               '"investment_property": []' \
               '}'
 
-#debtor has 2 forenames and an alternative name
+#debtor has 2 forenames and an alternative name  # debtor_2_names_alt.json
 forename_2_alt_name = '{ ' \
               '"key_number": "2244098",' \
               '"application_ref": "12345678",' \
@@ -346,7 +358,7 @@ forename_2_alt_name = '{ ' \
               '"investment_property": []' \
               '}'
 
-#debtor has 4 forenames and a surname
+#debtor has 4 forenames and a surname  debtor_four_forenames
 forename_4 = '{ ' \
               '"key_number": "2244098",' \
               '"application_ref": "12345678",' \

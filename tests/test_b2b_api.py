@@ -3,6 +3,7 @@ from unittest import mock
 from application.routes import app
 import requests
 from tests import test_data
+import os
 
 
 class FakeResponse(requests.Response):
@@ -14,6 +15,8 @@ class FakeResponse(requests.Response):
 
 
 my_reg_data = test_data.addr_withheld
+
+
 
 
 class TestB2BApi:
