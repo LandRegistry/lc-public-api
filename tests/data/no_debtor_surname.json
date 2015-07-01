@@ -1,0 +1,31 @@
+{
+  "key_number": "5666135",
+  "application_type": "PA(B)",
+  "application_ref": "1730825",
+  "date": "2014-07-01",
+  "debtor_name": {
+    "forenames": [
+      "Daisha",
+      "Paris"
+    ]
+  },
+  "debtor_alternative_name": [],
+  "gender": "N/A",
+  "occupation": "Antique dealer",
+  "residence": [
+    {
+      "address_lines": [
+        "4308 Wintheiser Crossroad",
+        "Douglasville",
+        "Mullerstad",
+        "South Glamorgan"
+      ],
+      "postcode": "RI73 5FP"
+    }
+  ],
+  "residence_withheld": false,
+  "date_of_birth": "1985-05-07",
+  "investment_property": [
+
+  ]
+}

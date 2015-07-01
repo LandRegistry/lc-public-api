@@ -1,0 +1,28 @@
+{
+  "application_type": "WO(B)",
+  "application_ref": "1532862",
+  "date": "2015-02-21",
+  "debtor_name": {
+    "forenames": [
+      "Ahmad",
+      "Jeromy"
+    ],
+    "surname": "Gulgowski"
+  },
+  "debtor_alternative_name": [],
+  "gender": "N/A",
+  "occupation": "Butcher",
+  "residence": [
+    {
+      "address_lines": [
+        "909 Nolan Cape",
+        "Port Brooksview",
+        "Essex"
+      ],
+      "postcode": "RG63 7KK"
+    }
+  ],
+  "residence_withheld": false,
+  "date_of_birth": "1987-06-21",
+  "investment_property": []
+}

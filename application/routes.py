@@ -42,6 +42,10 @@ full_schema = {
     "type": "object",
     "properties": {
         "key_number": {"type": "string"},
+        "application_type": {
+            "type": "string",
+            "enum": ["PA(B)", "WO(B)"]
+        },
         "application_ref": {"type": "string"},
         "date": date_schema,
         "debtor_name": name_schema,
@@ -64,7 +68,7 @@ full_schema = {
             "items": address_schema
         }
     },
-    "required": ["key_number", "application_ref", "date", "debtor_name", "residence_withheld"]
+    "required": ["key_number", "application_type", "application_ref", "date", "debtor_name", "residence_withheld"]
 }
 
 
