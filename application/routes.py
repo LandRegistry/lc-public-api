@@ -100,4 +100,4 @@ def register():
         return Response(json.dumps(data), status=202, mimetype='application/json')
     else:
         logging.error("Received " + str(response.status_code))
-        return Response(response.status_code)
+        return Response(status=response.status_code)
