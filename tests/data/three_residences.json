@@ -1,0 +1,44 @@
+{
+  "key_number": "8211564",
+  "application_type": "PA(B)",
+  "application_ref": "2470998",
+  "date": "2014-12-01",
+  "debtor_name": {
+    "forenames": [
+      "Clovis",
+      "Jordan"
+    ],
+    "surname": "Ziemann"
+  },
+  "debtor_alternative_name": [],
+  "gender": "N/A",
+  "occupation": "Toilet attendant",
+  "residence": [{
+      "address_lines": [
+        "3207 Dagmar Orchard",
+        "Padbergton",
+        "Lindgrenside",
+        "Oxfordshire"
+      ],
+      "postcode": "VX09 7EC"
+    },{
+      "address_lines": [
+        "661 Bartell Shoal",
+        "Port Ramon",
+        "New Lamarbury",
+        "Kent"
+      ],
+      "postcode": "HD74 7AH"
+    },{
+      "address_lines": [
+        "621 Harris Burgs",
+        "Port Sabrina",
+        "Lincolnshire"
+      ],
+      "postcode": "PS59 6NJ"
+    }
+  ],
+  "residence_withheld": false,
+  "date_of_birth": "1977-04-12",
+  "investment_property": []
+}
