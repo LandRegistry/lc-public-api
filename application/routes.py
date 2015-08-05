@@ -87,10 +87,12 @@ def register():
         validate(json_data, full_schema)
     except ValidationError as error:
         message = "{}\n{}".format(error.message, error.path)
+        logging.error(message)
         return Response(message, status=400)
 
     if json_data['residence_withheld'] is False and not json_data['residence']:
         message = "No residence included for the debtor. Residence required unless withheld."
+        logging.error(message)
         return Response(message, status=400)
 
     url = app.config['B2B_PROCESSOR_URL'] + '/register'
