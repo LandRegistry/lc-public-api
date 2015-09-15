@@ -1,9 +1,7 @@
-import pytest
 from unittest import mock
 from application.routes import app
 import requests
 from tests import test_data
-import os
 
 
 class FakeResponse(requests.Response):
@@ -15,8 +13,6 @@ class FakeResponse(requests.Response):
 
 
 my_reg_data = test_data.addr_withheld
-
-
 
 
 class TestB2BApi:
@@ -33,6 +29,7 @@ class TestB2BApi:
 
     # test for successful registration where debtor has 1 residence
     fake_success = FakeResponse('stuff', 200)
+
     @mock.patch('requests.post', return_value=fake_success)
     def test_register(self, mock_post):
         headers = {'Content-Type': 'application/json'}
