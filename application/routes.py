@@ -47,9 +47,8 @@ full_schema = {
             "enum": ["PA(B)", "WO(B)"]
         },
         "application_ref": {"type": "string"},
-        "date": date_schema,
-        "debtor_name": name_schema,
-        "debtor_alternative_name": {
+        "application_date": date_schema,
+        "debtor_names": {
             "type": "array",
             "items": name_schema
         },
@@ -68,13 +67,43 @@ full_schema = {
             "items": address_schema
         }
     },
-    "required": ["key_number", "application_type", "application_ref", "date", "debtor_name", "residence_withheld"]
+    "required": ["key_number", "application_type", "application_ref", "application_date", "debtor_names", "residence_withheld"]
 }
+
+
+def check_processor_health():
+    return requests.get(app.config['B2B_PROCESSOR_URL'] + '/health')
+
+
+application_dependencies = [
+    {
+        "name": "b2b-processor",
+        "check": check_processor_health
+    }
+]
 
 
 @app.route('/', methods=["GET"])
 def index():
     return Response(status=200)
+
+
+@app.route('/health', methods=['GET'])
+def health():
+    result = {
+        'status': 'OK',
+        'dependencies': {}
+    }
+
+    status = 200
+    for dependency in application_dependencies:
+        response = dependency["check"]()
+        result['dependencies'][dependency['name']] = str(response.status_code) + ' ' + response.reason
+        data = json.loads(response.content.decode('utf-8'))
+        for key in data['dependencies']:
+            result['dependencies'][key] = data['dependencies'][key]
+
+    return Response(json.dumps(result), status=status, mimetype='application/json')
 
 
 @app.route('/register', methods=["POST"])
@@ -101,7 +130,8 @@ def register():
 
     if response.status_code == 200:
         data = {
-            "message": "Register complete"
+            "message": "Register complete",
+            "result": json.loads(response.content.decode('utf-8'))
         }
         return Response(json.dumps(data), status=202, mimetype='application/json')
     else:
