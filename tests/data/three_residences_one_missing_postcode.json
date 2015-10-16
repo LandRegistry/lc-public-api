@@ -2,15 +2,15 @@
   "key_number": "7659646",
   "application_type": "PA(B)",
   "application_ref": "6378934",
-  "date": "2015-04-10",
-  "debtor_name": {
+  "application_date": "2015-04-10",
+  "debtor_names": [{
     "forenames": [
       "Nettie",
       "Brionna"
     ],
     "surname": "Witting"
-  },
-  "debtor_alternative_name": [],
+  }
+  ],
   "gender": "N/A",
   "occupation": "Pharmacist",
   "trading_name": "Technodax",

@@ -2,13 +2,12 @@
   "key_number": "4027653",
   "application_type": "PA(B)",
   "application_ref": "5259953",
-  "debtor_name": {
+  "debtor_names":[ {
     "forenames": [
       "Tristian"
     ],
     "surname": "Simonis"
-  },
-  "debtor_alternative_name": [],
+  }],
   "gender": "N/A",
   "occupation": "Assembly line worker",
   "residence": [

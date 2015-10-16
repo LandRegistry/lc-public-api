@@ -2,11 +2,10 @@
   "key_number": "2116316",
   "application_type": "WO(B)",
   "application_ref": "1692276",
-  "date": "2015-05-22",
-  "debtor_name": {
+  "application_date": "2015-05-22",
+  "debtor_names": [{
     "surname": "Keeling"
-  },
-  "debtor_alternative_name": [],
+  }],
   "gender": "N/A",
   "occupation": "Air traffic controller",
   "residence": [

@@ -2,15 +2,14 @@
   "key_number": "9158139",
   "application_type": "WO(B)",
   "application_ref": "8865357",
-  "date": "2014-11-01",
-  "debtor_name": {
+  "application_date": "2014-11-01",
+  "debtor_names": [{
     "forenames": [
       "Selena",
       "Krystina"
     ],
     "surname": "Mitchell"
-  },
-  "debtor_alternative_name": [],
+  }],
   "gender": "N/A",
   "occupation": "Dietician",
   "residence": [],

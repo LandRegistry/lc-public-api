@@ -1,15 +1,14 @@
 {
   "application_type": "WO(B)",
   "application_ref": "1532862",
-  "date": "2015-02-21",
-  "debtor_name": {
+  "application_date": "2015-02-21",
+  "debtor_names":[ {
     "forenames": [
       "Ahmad",
       "Jeromy"
     ],
     "surname": "Gulgowski"
-  },
-  "debtor_alternative_name": [],
+  }],
   "gender": "N/A",
   "occupation": "Butcher",
   "residence": [

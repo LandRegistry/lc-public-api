@@ -2,8 +2,8 @@
   "key_number": "5793991",
   "application_type": "WO(B)",
   "application_ref": "8759794",
-  "date": "2015-02-17",
-  "debtor_name": {
+  "application_date": "2015-02-17",
+  "debtor_names":[{
     "forenames": [
       "Kaelyn",
       "Ernesto",
@@ -11,8 +11,7 @@
       "Sigrid"
     ],
     "surname": "Funk"
-  },
-  "debtor_alternative_name": [],
+  }],
   "gender": "N/A",
   "occupation": "Craftsperson",
   "residence": [

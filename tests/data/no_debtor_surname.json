@@ -2,14 +2,13 @@
   "key_number": "5666135",
   "application_type": "PA(B)",
   "application_ref": "1730825",
-  "date": "2014-07-01",
-  "debtor_name": {
+  "application_date": "2014-07-01",
+  "debtor_name":[ {
     "forenames": [
       "Daisha",
       "Paris"
     ]
-  },
-  "debtor_alternative_name": [],
+  }],
   "gender": "N/A",
   "occupation": "Antique dealer",
   "residence": [

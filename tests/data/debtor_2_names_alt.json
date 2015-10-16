@@ -2,23 +2,20 @@
   "key_number": "7240166",
   "application_type": "WO(B)",
   "application_ref": "6045133",
-  "date": "2014-11-28",
-  "debtor_name": {
+  "application_date": "2014-11-28",
+  "debtor_names":[{
     "forenames": [
       "Johan",
       "Vincent"
     ],
     "surname": "Ritchie"
-  },
-  "debtor_alternative_name": [
-    {
+  },{
       "forenames": [
         "Kamille",
         "Mary"
       ],
       "surname": "Ritchie"
-    }
-  ],
+    }],
   "gender": "N/A",
   "occupation": "Telephonist",
   "residence": [

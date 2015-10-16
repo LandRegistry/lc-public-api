@@ -2,16 +2,15 @@
   "key_number": "5483026",
   "application_type": "PA(B)",
   "application_ref": "1989853",
-  "date": "2015-02-24",
-  "debtor_name": {
+  "application_date": "2015-02-24",
+  "debtor_names": [ {
     "forenames": [
       "Matt",
       "Howe"
     ],
     "surname": "Schulist"
   },
-  "debtor_alternative_name": [
-    {
+  {
       "forenames": [
         "Bette"
       ],

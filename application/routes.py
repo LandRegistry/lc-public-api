@@ -129,6 +129,7 @@ def register():
     response = requests.post(url, data=json.dumps(json_data), headers=headers)
 
     if response.status_code == 200:
+        print(response.content)
         data = {
             "message": "Register complete",
             "result": json.loads(response.content.decode('utf-8'))
