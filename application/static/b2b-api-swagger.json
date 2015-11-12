@@ -1,0 +1,154 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Digital Bankruptcy Registration Service",
+        "description": "Register a bankrupt individual",
+        "version": "1.0.0"
+    },
+    "host": "localhost:5001",
+    "schemes": [
+        "https"
+    ],
+    "basePath": "/v1",
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/registrations": {
+            "post": {
+                "summary": "Product Types",
+                "description": "The Registration endpoint allows an external organisation to\ndirectly register a new bankrupt individual.\n",
+                "parameters": [
+                    {
+                        "name": "registration",
+                        "in": "body",
+                        "description": "Data representing the new registration.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Registration"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Registration"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of registration numbers",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "It broke :("
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Registration": {
+            "type": "object",
+            "required": [
+                "key_number",
+                "application_type",
+                "application_ref",
+                "application_date",
+                "debtor_names",
+                "occupation",
+                "residence_withheld"
+            ],
+            "properties": {
+                "key_number": {
+                    "type": "string",
+                    "description": "Customer's key number."
+                },
+                "application_type": {
+                    "type": "string",
+                    "description": "Either 'PA(B)' or 'WO(B)'"
+                },
+                "application_ref": {
+                    "type": "string",
+                    "description": "Customer's reference for this application"
+                },
+                "application_date": {
+                    "type": "string",
+                    "description": "Date of the application"
+                },
+                "debtor_names": {
+                    "type": "array",
+                    "description": "Array of the names and alias names of the debtor.",
+                    "items": {
+                        "$ref": "#/definitions/Name"
+                    }
+                },
+                "gender": {
+                    "type": "string",
+                    "description": "Not used"
+                },
+                "occupation": {
+                    "type": "string",
+                    "description": "The debtor's occupation"
+                },
+                "trading_name": {
+                    "type": "string",
+                    "description": "The debtor's trading name"
+                },
+                "residence": {
+                    "type": "array",
+                    "description": "The debtor's home addresses.",
+                    "items": {
+                        "$ref": "#/definitions/Address"
+                    }
+                },
+                "residence_withheld": {
+                    "description": "True if the address is to be withheld. If true, no residence may be provided.",
+                    "type": "boolean"
+                },
+                "business_address": {
+                    "$ref": "#/definitions/Address"
+                },
+                "date_of_birth": {
+                    "type": "string"
+                },
+                "investment_property": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Address"
+                    }
+                }
+            }
+        },
+        "Address": {
+            "type": "object",
+            "properties": {
+                "address_lines": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "postcode": {
+                    "type": "string"
+                }
+            }
+        },
+        "Name": {
+            "type": "object",
+            "properties": {
+                "forenames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "surname": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
