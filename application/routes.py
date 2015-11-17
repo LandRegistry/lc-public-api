@@ -98,6 +98,9 @@ def health():
     status = 200
     for dependency in application_dependencies:
         response = dependency["check"]()
+        if response.status_code != 200:
+            status = 500
+
         result['dependencies'][dependency['name']] = str(response.status_code) + ' ' + response.reason
         data = json.loads(response.content.decode('utf-8'))
         for key in data['dependencies']:
@@ -106,7 +109,7 @@ def health():
     return Response(json.dumps(result), status=status, mimetype='application/json')
 
 
-@app.route('/register', methods=["POST"])
+@app.route('/bankruptcies', methods=["POST"])
 def register():
     if request.headers['Content-Type'] != "application/json":
         return Response(status=415)  # 415 (Unsupported Media Type)
