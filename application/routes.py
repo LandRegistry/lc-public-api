@@ -127,7 +127,7 @@ def register():
         logging.error(message)
         return Response(message, status=400)
 
-    url = app.config['B2B_PROCESSOR_URL'] + '/register'
+    url = app.config['B2B_PROCESSOR_URL'] + '/bankruptcies'
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, data=json.dumps(json_data), headers=headers)
 
