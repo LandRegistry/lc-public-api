@@ -41,7 +41,10 @@ date_schema = {
 full_schema = {
     "type": "object",
     "properties": {
-        "key_number": {"type": "string"},
+        "key_number": {
+            "type": "string",
+            "pattern": "^\d+$"
+        },
         "application_type": {
             "type": "string",
             "enum": ["PA(B)", "WO(B)"]
@@ -50,6 +53,7 @@ full_schema = {
         "application_date": date_schema,
         "debtor_names": {
             "type": "array",
+            "minItems": 1,
             "items": name_schema
         },
         "gender": {"type": "string"},
@@ -60,14 +64,18 @@ full_schema = {
             "items": address_schema
         },
         "residence_withheld": {"type": "boolean"},
-        "business_address": address_schema,
+        "business_address": {
+            "type": "array",
+            "items": address_schema
+        },
         "date_of_birth": date_schema,
         "investment_property": {
             "type": "array",
             "items": address_schema
         }
     },
-    "required": ["key_number", "application_type", "application_ref", "application_date", "debtor_names", "residence_withheld"]
+    "required": ["key_number", "application_type", "application_ref", "application_date", "debtor_names",
+                 "residence_withheld"]
 }
 
 
@@ -148,7 +156,14 @@ def register():
         })
 
     if len(errors) > 0:
-        return Response(json.dumps(errors), status=400, mimetype='application/json')
+        data = {
+            'errors': errors,
+        }
+        if 'application_ref' in json_data:
+            data['application_ref'] = json_data['application_ref']
+        else:
+            data['application_ref'] = ''
+        return Response(json.dumps(data), status=400, mimetype='application/json')
 
     url = app.config['B2B_PROCESSOR_URL'] + '/bankruptcies'
     headers = {'Content-Type': 'application/json'}
@@ -157,9 +172,11 @@ def register():
     if response.status_code == 200:
         print(response.content)
         data = {
-            "message": "Register complete",
-            "result": json.loads(response.content.decode('utf-8'))
+            "new_registrations": json.loads(response.content.decode('utf-8'))['new_registrations'],
+            'application_type': json_data['application_type'],
+            'application_ref': json_data['application_ref']
         }
+
         return Response(json.dumps(data), status=202, mimetype='application/json')
     else:
         logging.error("Received " + str(response.status_code))
