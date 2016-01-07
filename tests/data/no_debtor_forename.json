@@ -4,6 +4,8 @@
   "application_ref": "1692276",
   "application_date": "2015-05-22",
   "debtor_names": [{
+    "forenames": "bob"
+  },{
     "surname": "Keeling"
   }],
   "gender": "N/A",

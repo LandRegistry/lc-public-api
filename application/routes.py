@@ -3,8 +3,7 @@ from flask import Response, request
 import json
 import logging
 import requests
-from jsonschema import validate
-from jsonschema.exceptions import ValidationError
+from jsonschema import Draft4Validator
 
 
 name_schema = {
@@ -28,9 +27,10 @@ address_schema = {
             "items": {"type": "string"},
             "minItems": 1
         },
+        "county": {"type": "string"},
         "postcode": {"type": "string"}
     },
-    "required": ["address_lines", "postcode"]
+    "required": ["address_lines", "postcode", "county"]
 }
 
 date_schema = {
@@ -115,17 +115,40 @@ def register():
         return Response(status=415)  # 415 (Unsupported Media Type)
 
     json_data = request.get_json(force=True)
-    try:
-        validate(json_data, full_schema)
-    except ValidationError as error:
-        message = "{}\n{}".format(error.message, error.path)
-        logging.error(message)
-        return Response(message, status=400)
+    val = Draft4Validator(full_schema)
+    errors = []
+    for error in val.iter_errors(json_data):
+        # Should be able to express the error location using JSONPath:
+        path = "$"
+        while len(error.path) > 0:
+            item = error.path.popleft()
+            if isinstance(item, int): # This is an assumption!
+                path += "[" + str(item) + "]"
+            else:
+                path += "." + item
+        if path == '$':
+            path = '$.'
+        errors.append({
+            "location": path,
+            "error_message": error.message
+        })
 
     if json_data['residence_withheld'] is False and not json_data['residence']:
-        message = "No residence included for the debtor. Residence required unless withheld."
-        logging.error(message)
-        return Response(message, status=400)
+        message = "'residence' is a required property when 'address_withheld' is false"
+        errors.append({
+            'location': '',
+            'error_message': message
+        })
+
+    if json_data['residence_withheld'] is True \
+            and 'residence' in json_data and len(json_data['residence']) > 0:
+        errors.append({
+            'location': '',
+            'error_message': "'residence' may not be supplied when 'address_withheld' is true"
+        })
+
+    if len(errors) > 0:
+        return Response(json.dumps(errors), status=400, mimetype='application/json')
 
     url = app.config['B2B_PROCESSOR_URL'] + '/bankruptcies'
     headers = {'Content-Type': 'application/json'}
