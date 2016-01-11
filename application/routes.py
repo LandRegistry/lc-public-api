@@ -141,14 +141,16 @@ def register():
             "error_message": error.message
         })
 
-    if json_data['residence_withheld'] is False and not json_data['residence']:
+    if 'residence_withheld' in json_data and \
+            json_data['residence_withheld'] is False \
+            and not json_data['residence']:
         message = "'residence' is a required property when 'address_withheld' is false"
         errors.append({
             'location': '',
             'error_message': message
         })
 
-    if json_data['residence_withheld'] is True \
+    if 'residence_withheld' in json_data and json_data['residence_withheld'] is True \
             and 'residence' in json_data and len(json_data['residence']) > 0:
         errors.append({
             'location': '',
@@ -177,7 +179,7 @@ def register():
             'application_ref': json_data['application_ref']
         }
 
-        return Response(json.dumps(data), status=202, mimetype='application/json')
+        return Response(json.dumps(data), status=201, mimetype='application/json')
     else:
         logging.error("Received " + str(response.status_code))
         return Response(status=response.status_code)
