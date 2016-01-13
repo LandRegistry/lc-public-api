@@ -122,6 +122,7 @@ def register():
     if request.headers['Content-Type'] != "application/json":
         return Response(status=415)  # 415 (Unsupported Media Type)
 
+    request_text = request.data.decode('utf-8')
     json_data = request.get_json(force=True)
     val = Draft4Validator(full_schema)
     errors = []
@@ -169,6 +170,8 @@ def register():
 
     url = app.config['B2B_PROCESSOR_URL'] + '/bankruptcies'
     headers = {'Content-Type': 'application/json'}
+
+    json_data['original_request'] = request_text
     response = requests.post(url, data=json.dumps(json_data), headers=headers)
 
     if response.status_code == 200:
