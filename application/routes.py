@@ -172,6 +172,8 @@ def register():
     headers = {'Content-Type': 'application/json'}
 
     json_data['original_request'] = request_text
+    json_data['customer_name'] = '[INS PLACEHOLDER HERE! FIXME]'
+    json_data['customer_address'] = '[INS PLACEHOLDER HERE! FIXME]'
     response = requests.post(url, data=json.dumps(json_data), headers=headers)
 
     if response.status_code == 200:
