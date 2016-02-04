@@ -3,6 +3,9 @@ from flask import Response, request
 import json
 import logging
 import requests
+import traceback
+import kombu
+import re
 from jsonschema import Draft4Validator
 
 
@@ -117,12 +120,46 @@ def health():
     return Response(json.dumps(result), status=status, mimetype='application/json')
 
 
+@app.errorhandler(Exception)
+def error_handler(err):
+    logging.error('Unhandled exception: ' + str(err))
+    call_stack = traceback.format_exc()
+
+    lines = call_stack.split("\n")
+    for line in lines:
+        logging.error(line)
+
+    error = {
+        "type": "F",
+        "message": str(err),
+        "stack": call_stack
+    }
+    raise_error(error)
+    return Response(json.dumps(error), status=500)
+
+
+@app.before_request
+def before_request():
+    logging.info("BEGIN %s %s [%s] (%s)",
+                 request.method, request.url, request.remote_addr, request.__hash__())
+
+
+@app.after_request
+def after_request(response):
+    logging.info('END %s %s [%s] (%s) -- %s',
+                 request.method, request.url, request.remote_addr, request.__hash__(),
+                 response.status)
+    return response
+
+
 @app.route('/bankruptcies', methods=["POST"])
 def register():
     if request.headers['Content-Type'] != "application/json":
+        logging.info("Invalid Content-Type - rejecting")
         return Response(status=415)  # 415 (Unsupported Media Type)
 
     request_text = request.data.decode('utf-8')
+    logging.info("Data received: %s", re.sub(r"\r?\n", "", request_text))
     json_data = request.get_json(force=True)
     val = Draft4Validator(full_schema)
     errors = []
@@ -131,7 +168,7 @@ def register():
         path = "$"
         while len(error.path) > 0:
             item = error.path.popleft()
-            if isinstance(item, int): # This is an assumption!
+            if isinstance(item, int):  # This is an assumption!
                 path += "[" + str(item) + "]"
             else:
                 path += "." + item
@@ -166,7 +203,10 @@ def register():
             data['application_ref'] = json_data['application_ref']
         else:
             data['application_ref'] = ''
-        return Response(json.dumps(data), status=400, mimetype='application/json')
+
+        body = json.dumps(data)
+        logging.info("Invalid submission: {}".format(body))
+        return Response(body, status=400, mimetype='application/json')
 
     url = app.config['B2B_PROCESSOR_URL'] + '/bankruptcies'
     headers = {'Content-Type': 'application/json'}
@@ -177,14 +217,24 @@ def register():
     response = requests.post(url, data=json.dumps(json_data), headers=headers)
 
     if response.status_code == 200:
-        print(response.content)
+        response_text = response.content.decode('utf-8')
+        logging.info('POST {} -- {}'.format(url, response.status_code))
+        logging.info("Successful registration: {}".format(response_text))
         data = {
-            "new_registrations": json.loads(response.content.decode('utf-8'))['new_registrations'],
+            "new_registrations": json.loads(response_text)['new_registrations'],
             'application_type': json_data['application_type'],
             'application_ref': json_data['application_ref']
         }
 
         return Response(json.dumps(data), status=201, mimetype='application/json')
     else:
-        logging.error("Received " + str(response.status_code))
-        return Response(status=response.status_code)
+        raise RuntimeError("Unexpected response from {} -- {}".format(url, response.status_code))
+
+
+def raise_error(error):
+    hostname = "amqp://{}:{}@{}:{}".format(app.config['MQ_USERNAME'], app.config['MQ_PASSWORD'],
+                                           app.config['MQ_HOSTNAME'], app.config['MQ_PORT'])
+    connection = kombu.Connection(hostname=hostname)
+    producer = connection.SimpleQueue('errors')
+    producer.put(error)
+    logging.warning('Error successfully raised.')
