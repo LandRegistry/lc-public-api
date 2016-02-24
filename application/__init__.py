@@ -10,5 +10,5 @@ setup_logging(app.config)
 
 
 logging.info('================================')
-logging.ingo(os.getenv('AUTOMATIC_PROCESS_URL', 'AUTOMATIC_PROCESS_URL NOT SET'))
+logging.info(os.getenv('AUTOMATIC_PROCESS_URL', 'AUTOMATIC_PROCESS_URL NOT SET'))
 logging.info('================================')
