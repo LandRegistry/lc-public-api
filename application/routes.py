@@ -6,6 +6,7 @@ import requests
 import traceback
 import kombu
 import re
+import uuid
 from jsonschema import Draft4Validator
 
 
@@ -158,8 +159,10 @@ def register():
         logging.info("Invalid Content-Type - rejecting")
         return Response(status=415)  # 415 (Unsupported Media Type)
 
+    transaction_id = uuid.uuid4().int  # consider fields[0] if the int is too long; it *should* be OK
+
     request_text = request.data.decode('utf-8')
-    logging.info("Data received: %s", re.sub(r"\r?\n", "", request_text))
+    logging.info("T:%d Data received: %s", transaction_id, re.sub(r"\r?\n", "", request_text))
     json_data = request.get_json(force=True)
     val = Draft4Validator(full_schema)
     errors = []
@@ -205,11 +208,11 @@ def register():
             data['application_ref'] = ''
 
         body = json.dumps(data)
-        logging.info("Invalid submission: {}".format(body))
+        logging.info("T:{} Invalid submission: {}".format(transaction_id, body))
         return Response(body, status=400, mimetype='application/json')
 
     url = app.config['B2B_PROCESSOR_URL'] + '/bankruptcies'
-    headers = {'Content-Type': 'application/json'}
+    headers = {'Content-Type': 'application/json', 'X-Transaction-ID': transaction_id}
 
     json_data['original_request'] = request_text
     json_data['customer_name'] = '[INS PLACEHOLDER HERE! FIXME]'
@@ -225,7 +228,7 @@ def register():
             'application_type': json_data['application_type'],
             'application_ref': json_data['application_ref']
         }
-
+        logging.info("T:%d Data submitted for registration OK", transaction_id)
         return Response(json.dumps(data), status=201, mimetype='application/json')
     else:
         raise RuntimeError("Unexpected response from {} -- {}".format(url, response.status_code))
