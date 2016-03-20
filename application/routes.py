@@ -7,6 +7,7 @@ import traceback
 import kombu
 import re
 import uuid
+import getpass
 from jsonschema import Draft4Validator
 
 
@@ -153,6 +154,13 @@ def after_request(response):
     return response
 
 
+def get_username():
+    return "{}({})".format(
+        getpass.getuser(),
+        app.config['APPLICATION_NAME']
+    )
+
+
 @app.route('/bankruptcies', methods=["POST"])
 def register():
     if request.headers['Content-Type'] != "application/json":
@@ -212,7 +220,11 @@ def register():
         return Response(body, status=400, mimetype='application/json')
 
     url = app.config['B2B_PROCESSOR_URL'] + '/bankruptcies'
-    headers = {'Content-Type': 'application/json', 'X-Transaction-ID': transaction_id}
+    headers = {
+        'Content-Type': 'application/json',
+        'X-Transaction-ID': transaction_id,
+        'X-LC-Username': get_username()
+    }
 
     json_data['original_request'] = request_text
     json_data['customer_name'] = '[INS PLACEHOLDER HERE! FIXME]'
