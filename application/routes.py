@@ -8,6 +8,7 @@ import kombu
 import re
 import uuid
 import getpass
+from datetime import datetime
 from jsonschema import Draft4Validator
 
 
@@ -161,6 +162,14 @@ def get_username():
     )
 
 
+def is_valid_date(date):
+    try:
+        d = datetime.strptime(date, '%Y-%m-%d')
+        return True
+    except ValueError as e:
+        return False
+
+
 @app.route('/bankruptcies', methods=["POST"])
 def register():
     if request.headers['Content-Type'] != "application/json":
@@ -198,6 +207,12 @@ def register():
             'location': '',
             'error_message': message
         })
+
+    if 'date_of_birth' in json_data and not is_valid_date(json_data['date_of_birth']):
+        errors.append({'location': '', 'error_message': "date_of_birth is not a valid date"})
+
+    if 'application_date' in json_data and not is_valid_date(json_data['application_date']):
+        errors.append({'location': '', 'error_message': "application_date is not a valid date"})
 
     if 'residence_withheld' in json_data and json_data['residence_withheld'] is True \
             and 'residence' in json_data and len(json_data['residence']) > 0:
