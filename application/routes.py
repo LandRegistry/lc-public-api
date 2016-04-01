@@ -49,7 +49,7 @@ full_schema = {
     "properties": {
         "key_number": {
             "type": "string",
-            "pattern": "^\d+$"
+            "pattern": "^\d{7}$"
         },
         "application_type": {
             "type": "string",
