@@ -3,8 +3,13 @@ from flask import Response, request
 import json
 import logging
 import requests
-from jsonschema import validate
-from jsonschema.exceptions import ValidationError
+import traceback
+import kombu
+import re
+import uuid
+import getpass
+from datetime import datetime
+from jsonschema import Draft4Validator
 
 
 name_schema = {
@@ -28,9 +33,10 @@ address_schema = {
             "items": {"type": "string"},
             "minItems": 1
         },
+        "county": {"type": "string"},
         "postcode": {"type": "string"}
     },
-    "required": ["address_lines", "postcode"]
+    "required": ["address_lines", "postcode", "county"]
 }
 
 date_schema = {
@@ -41,12 +47,19 @@ date_schema = {
 full_schema = {
     "type": "object",
     "properties": {
-        "key_number": {"type": "string"},
+        "key_number": {
+            "type": "string",
+            "pattern": "^\d{7}$"
+        },
+        "application_type": {
+            "type": "string",
+            "enum": ["PA(B)", "WO(B)"]
+        },
         "application_ref": {"type": "string"},
-        "date": date_schema,
-        "debtor_name": name_schema,
-        "debtor_alternative_name": {
+        "application_date": date_schema,
+        "debtor_names": {
             "type": "array",
+            "minItems": 1,
             "items": name_schema
         },
         "gender": {"type": "string"},
@@ -57,15 +70,31 @@ full_schema = {
             "items": address_schema
         },
         "residence_withheld": {"type": "boolean"},
-        "business_address": address_schema,
+        "business_address": {
+            "type": "array",
+            "items": address_schema
+        },
         "date_of_birth": date_schema,
         "investment_property": {
             "type": "array",
             "items": address_schema
         }
     },
-    "required": ["key_number", "application_ref", "date", "debtor_name", "residence_withheld"]
+    "required": ["key_number", "application_type", "application_ref", "application_date", "debtor_names",
+                 "residence_withheld"]
 }
+
+
+def check_processor_health():
+    return requests.get(app.config['B2B_PROCESSOR_URL'] + '/health')
+
+
+application_dependencies = [
+    {
+        "name": "b2b-processor",
+        "check": check_processor_health
+    }
+]
 
 
 @app.route('/', methods=["GET"])
@@ -73,31 +102,168 @@ def index():
     return Response(status=200)
 
 
-@app.route('/register', methods=["POST"])
+@app.route('/health', methods=['GET'])
+def health():
+    result = {
+        'status': 'OK',
+        'dependencies': {}
+    }
+
+    status = 200
+    for dependency in application_dependencies:
+        response = dependency["check"]()
+        if response.status_code != 200:
+            status = 500
+
+        result['dependencies'][dependency['name']] = str(response.status_code) + ' ' + response.reason
+        data = json.loads(response.content.decode('utf-8'))
+        for key in data['dependencies']:
+            result['dependencies'][key] = data['dependencies'][key]
+
+    return Response(json.dumps(result), status=status, mimetype='application/json')
+
+
+@app.errorhandler(Exception)
+def error_handler(err):
+    logging.error('Unhandled exception: ' + str(err))
+    call_stack = traceback.format_exc()
+
+    lines = call_stack.split("\n")
+    for line in lines:
+        logging.error(line)
+
+    error = {
+        "type": "F",
+        "message": str(err),
+        "stack": call_stack
+    }
+    raise_error(error)
+    return Response(json.dumps(error), status=500)
+
+
+@app.before_request
+def before_request():
+    logging.info("BEGIN %s %s [%s] (%s)",
+                 request.method, request.url, request.remote_addr, request.__hash__())
+
+
+@app.after_request
+def after_request(response):
+    logging.info('END %s %s [%s] (%s) -- %s',
+                 request.method, request.url, request.remote_addr, request.__hash__(),
+                 response.status)
+    return response
+
+
+def get_username():
+    return "{}({})".format(
+        getpass.getuser(),
+        app.config['APPLICATION_NAME']
+    )
+
+
+def is_valid_date(date):
+    try:
+        d = datetime.strptime(date, '%Y-%m-%d')
+        return True
+    except ValueError as e:
+        return False
+
+
+@app.route('/bankruptcies', methods=["POST"])
 def register():
     if request.headers['Content-Type'] != "application/json":
+        logging.info("Invalid Content-Type - rejecting")
         return Response(status=415)  # 415 (Unsupported Media Type)
 
+    transaction_id = uuid.uuid4().int  # consider fields[0] if the int is too long; it *should* be OK
+
+    request_text = request.data.decode('utf-8')
+    logging.info("T:%d Data received: %s", transaction_id, re.sub(r"\r?\n", "", request_text))
     json_data = request.get_json(force=True)
-    try:
-        validate(json_data, full_schema)
-    except ValidationError as error:
-        message = "{}\n{}".format(error.message, error.path)
-        return Response(message, status=400)
+    val = Draft4Validator(full_schema)
+    errors = []
+    for error in val.iter_errors(json_data):
+        # Should be able to express the error location using JSONPath:
+        path = "$"
+        while len(error.path) > 0:
+            item = error.path.popleft()
+            if isinstance(item, int):  # This is an assumption!
+                path += "[" + str(item) + "]"
+            else:
+                path += "." + item
+        if path == '$':
+            path = '$.'
+        errors.append({
+            "location": path,
+            "error_message": error.message
+        })
 
-    if json_data['residence_withheld'] is False and not json_data['residence']:
-        message = "No residence included for the debtor. Residence required unless withheld."
-        return Response(message, status=400)
+    if 'residence_withheld' in json_data and \
+            json_data['residence_withheld'] is False \
+            and not json_data['residence']:
+        message = "'residence' is a required property when 'address_withheld' is false"
+        errors.append({
+            'location': '',
+            'error_message': message
+        })
 
-    url = app.config['B2B_PROCESSOR_URL'] + '/register'
-    headers = {'Content-Type': 'application/json'}
+    if 'date_of_birth' in json_data and not is_valid_date(json_data['date_of_birth']):
+        errors.append({'location': '', 'error_message': "date_of_birth is not a valid date"})
+
+    if 'application_date' in json_data and not is_valid_date(json_data['application_date']):
+        errors.append({'location': '', 'error_message': "application_date is not a valid date"})
+
+    if 'residence_withheld' in json_data and json_data['residence_withheld'] is True \
+            and 'residence' in json_data and len(json_data['residence']) > 0:
+        errors.append({
+            'location': '',
+            'error_message': "'residence' may not be supplied when 'address_withheld' is true"
+        })
+
+    if len(errors) > 0:
+        data = {
+            'errors': errors,
+        }
+        if 'application_ref' in json_data:
+            data['application_ref'] = json_data['application_ref']
+        else:
+            data['application_ref'] = ''
+
+        body = json.dumps(data)
+        logging.info("T:{} Invalid submission: {}".format(transaction_id, body))
+        return Response(body, status=400, mimetype='application/json')
+
+    url = app.config['B2B_PROCESSOR_URL'] + '/bankruptcies'
+    headers = {
+        'Content-Type': 'application/json',
+        'X-Transaction-ID': transaction_id,
+        'X-LC-Username': get_username()
+    }
+
+    json_data['original_request'] = request_text
+    json_data['customer_name'] = 'The Office of the Adjudicator'
+    json_data['customer_address'] = ''
     response = requests.post(url, data=json.dumps(json_data), headers=headers)
 
     if response.status_code == 200:
+        response_text = response.content.decode('utf-8')
+        logging.info('POST {} -- {}'.format(url, response.status_code))
+        logging.info("Successful registration: {}".format(response_text))
         data = {
-            "message": "Register complete"
+            "new_registrations": json.loads(response_text)['new_registrations'],
+            'application_type': json_data['application_type'],
+            'application_ref': json_data['application_ref']
         }
-        return Response(json.dumps(data), status=202, mimetype='application/json')
+        logging.info("T:%d Data submitted for registration OK", transaction_id)
+        return Response(json.dumps(data), status=201, mimetype='application/json')
     else:
-        logging.error("Received " + str(response.status_code))
-        return Response(response.status_code)
+        raise RuntimeError("Unexpected response from {} -- {}".format(url, response.status_code))
+
+
+def raise_error(error):
+    hostname = app.config['AMQP_URI']
+    connection = kombu.Connection(hostname=hostname)
+    producer = connection.SimpleQueue('errors')
+    producer.put(error)
+    logging.warning('Error successfully raised.')

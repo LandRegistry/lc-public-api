@@ -1,0 +1,30 @@
+{
+  "key_number": "1234567",
+  "application_ref": "APP01",
+  "application_type": "PA(B)",
+  "application_date": "2016-01-01",
+  "debtor_names": [
+    {
+      "forenames": [
+        "Bob",
+        "Oscar",
+        "Francis"
+      ],
+      "surname": "Howard"
+    }
+  ],
+  "gender": "Unknown",
+  "occupation": "Civil Servant",
+  "trading_name": "",
+  "residence": [
+    {
+      "address_lines": [
+        "1 The Street",
+        "The Town"
+      ],
+      "postcode": "AA1 1AA"
+    }
+  ],
+  "residence_withheld": false,
+  "date_of_birth": "1980-01-01"
+}
